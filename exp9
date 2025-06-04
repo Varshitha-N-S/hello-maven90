@@ -52,7 +52,7 @@ pipeline {
         src: "/var/lib/jenkins/workspace/maven/target/hello-maven-1.0-SNAPSHOT.jar"
         dest: "/home/student-devops/Desktop/t.jar"
 pom 4
-  <build>
+    <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -68,6 +68,9 @@ pom 4
             </plugin>
         </plugins>
     </build>
+
+
+
 pom 2
  <build>
     <plugins>
