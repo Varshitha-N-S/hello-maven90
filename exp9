@@ -1,0 +1,95 @@
+pipeline { 
+    agent any 
+    
+    stages { 
+
+        stage('Checkout') { 
+            steps { 
+                git branch: 'main', url: 'https://github.com/azadCMRIT/hello-maven2.git' 
+            } 
+        } 
+
+        stage('Build') { 
+            steps { 
+                sh 'mvn clean package' 
+            } 
+        }
+
+        stage('Test') { 
+            steps { 
+                sh 'mvn test' 
+            } 
+        } 
+
+        stage('Archive Artifacts') { 
+            steps { 
+                archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true 
+            } 
+        } 
+
+        stage('Deploy') { 
+            steps { 
+                sh """ 
+                export ANSIBLE_HOST_KEY_CHECKING=False 
+                ansible-playbook -i /var/lib/jenkins/workspace/maven2/hosts.ini /var/lib/jenkins/workspace/maven2/deploy.yaml --extra-vars='ansible_become_pass=login@123' 
+                """ 
+                // Enter student password above 
+            } 
+        } 
+    } 
+}
+
+---
+- name: Deploy Artifact to Localhost
+  hosts: localhost
+  become: true
+  become_user: student-devops
+  become_method: su
+
+  tasks:
+    - name: Copy the artifact to the target location
+      copy:
+        src: "/var/lib/jenkins/workspace/maven/target/hello-maven-1.0-SNAPSHOT.jar"
+        dest: "/home/student-devops/Desktop/t.jar"
+pom 4
+  <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Main-Class>com.example.App</Main-Class>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+pom 2
+ <build>
+    <plugins>
+      <!-- Plugin to run Java classes -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.1.0</version>
+        <configuration>
+          <mainClass>com.example.Main</mainClass>
+        </configuration>
+      </plugin>
+
+      <!-- Compiler Plugin to compile the source code -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.1</version>
+        <configuration>
+          <source>17</source>
+          <target>17</target>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
